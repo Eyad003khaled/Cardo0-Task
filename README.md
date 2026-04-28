@@ -18,7 +18,7 @@ This simulation demonstrates the full embedded system workflow, including sensor
 ### 🎥 Loom Explanation Video
 A detailed walkthrough and explanation of the project is available here:
 
-- 👉 https://www.loom.com/share/your-video-id
+- 👉 [(https://www.loom.com/share/ea6701f79e104a3d86f670425dcb15e1)](https://www.loom.com/share/ea6701f79e104a3d86f670425dcb15e1)
 
 The video covers architecture, implementation details, and a live demonstration of the system in action.
 
@@ -65,6 +65,15 @@ The video covers architecture, implementation details, and a live demonstration 
 │                     REST API / Cloud Communication                │
 └─────────────────────────────────────────────────────────────────  ┘
 ```
+# 🎥 System Preview
+
+## 📱 Screenshots
+
+| Wokwi Simulator | Mobile App Dashboard | Database |
+|-------------|-------------------|-----------------|
+| ![](assets/wokwi_preview.png) | ![](assets/app_preview.jpg) | ![](assets/database_preview.png) |
+
+---
 
 ## 📋 Table of Contents
 
@@ -74,9 +83,8 @@ The video covers architecture, implementation details, and a live demonstration 
 4. [System Integration & Architecture](#-system-integration--architecture)
 5. [Technology Stack & Design Patterns](#-technology-stack--design-patterns)
 6. [Project Deliverables](#-project-deliverables)
-7. [Key Implementation Decisions](#-key-implementation-decisions-explained)
-8. [Development Process & Challenges](#-development-process--challenges)
-9. [Project Metrics](#-project-metrics)
+7. [Development Process & Challenges](#-development-process--challenges)
+8. [Project Metrics](#-project-metrics)
 
 
 ---
