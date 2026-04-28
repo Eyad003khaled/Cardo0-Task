@@ -1,10 +1,8 @@
 class Endpoints{
-  static String baseUrl  =  'https://angry-corners-think.loca.lt';
+  //! Use Your host here
+  static String baseUrl  =  'https://eyad-dev.loca.lt';
   static String latestReading  = "/readings/latest";
 
 
 }
 
-class ApiKey{
-
-}
