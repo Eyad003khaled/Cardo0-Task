@@ -4,25 +4,66 @@
 
 Cardoo is a complete IoT ecosystem designed to collect, process, and visualize environmental sensor data in real-time. The system architecture demonstrates integration of three distinct technology stacks: embedded C/C++ firmware, TypeScript backend API, and cross-platform mobile UI.
 
+## Demo Links
+
+### 🔧 Wokwi Simulation
+You can run and test the hardware simulation directly using Wokwi:
+
+- 👉 [(https://wokwi.com/projects/462417074439242753)](https://wokwi.com/projects/462417074439242753)
+
+This simulation demonstrates the full embedded system workflow, including sensors, microcontroller logic, and real-time responses.
+
+---
+
+### 🎥 Loom Explanation Video
+A detailed walkthrough and explanation of the project is available here:
+
+- 👉 https://www.loom.com/share/your-video-id
+
+The video covers architecture, implementation details, and a live demonstration of the system in action.
+
+
+
+## 👨‍💻 Developer Information
+
+**Developed and Submitted by:**
+
+| Field | Details |
+|-------|---------|
+| **Name** | Eyad Khaled |
+| **Title** | Senior Software Engineer |
+| **Phone** | +201024537220 |
+| **Email** | khaledeyad60@gmail.com |
+| **LinkedIn** | [www.linkedin.com/in/eyad-khaled](https://www.linkedin.com/in/eyad-khaled) |
+
+---
+
 ## 🏗️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      CARDOO ECOSYSTEM                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐│
-│  │   ESP32 Device  │    │   Backend (API)  │    │ Mobile App  ││
-│  │                 │    │                  │    │             ││
-│  │ • DHT22 Sensor  │───▶│ • NestJS Server  │◀───│ • Flutter   ││
-│  │ • WiFi Module   │    │ • PostgreSQL DB  │    │ • UI/Display││
-│  │ • C/C++ Firmware│    │ • Prisma ORM     │    │ • Dart      ││
-│  └─────────────────┘    └──────────────────┘    └─────────────┘│
-│         │                                              ▲          │
-│         │ HTTP POST (JSON sensor data)                │          │
-│         └──────────────────────────────────────────────┘          │
-│                    REST API Communication                        │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────  ┐
+│                       CARDOO ECOSYSTEM                            │
+├─────────────────────────────────────────────────────────────────  ┤
+│                                                                   │
+│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐   │
+│  │   ESP32 Device  │    │   Backend (API)  │    │ Mobile App  │   │
+│  │                 │    │                  │    │             │   │ 
+│  │ • DHT22 Sensor  │───▶│ • NestJS Server  │───▶│ • Flutter   │   │
+│  │ • WiFi Module   │    │ • Prisma ORM     │    │ • UI/Display│   │
+│  │ • C/C++ Firmware│    └────────┬─────────┘    │ • Dart      │   │
+│  └─────────────────┘             │              └─────────────┘   │
+│            │                     │                        ▲       │
+│            │                     ▼                        │       │
+│            │            ┌──────────────────┐              │       │
+│            │            │  Cloud Database  │              │       │
+│            │            │    (Supabase)    │              │       │
+│            │            │ • PostgreSQL     │              │       │
+│            │            │ • Auth / Storage │              │       │
+│            │            └──────────────────┘              │       │
+│            │                                              │       │
+│            └──────────────────────────────────────────────┘       │
+│                     REST API / Cloud Communication                │
+└─────────────────────────────────────────────────────────────────  ┘
 ```
 
 ## 📋 Table of Contents
@@ -36,8 +77,7 @@ Cardoo is a complete IoT ecosystem designed to collect, process, and visualize e
 7. [Key Implementation Decisions](#-key-implementation-decisions-explained)
 8. [Development Process & Challenges](#-development-process--challenges)
 9. [Project Metrics](#-project-metrics)
-10. [Security & Production Readiness](#--security--production-readiness)
-11. [Documentation & Code Quality](#--documentation--code-quality)
+
 
 ---
 
@@ -95,6 +135,7 @@ src/
 
 **Architectural pattern**: Clean separation of concerns using NestJS modules:
 - **Prisma Module**: Handles database connectivity, exposed as injectable service
+- **Database**: Use Supabase as a cloud Database
 - **Readings Module**: Encapsulates all reading-related operations
 - **Controller**: Routes HTTP requests to service methods
 - **Service**: Contains business logic and database queries
@@ -130,7 +171,7 @@ Implemented a multi-layer validation strategy:
 |-----------|-----------|---------|-----------|
 | Framework | NestJS | 11.0.1 | Production-grade, modular architecture |
 | Runtime | Node.js | 18+ | JavaScript/TypeScript execution |
-| Database | PostgreSQL | 12+ | Reliable relational database |
+| Database | PostgreSQL (Supabase)| 12+ | Reliable relational database |
 | ORM | Prisma | 5.22.0 | Type-safe database access with migrations |
 | Language | TypeScript | Latest | Type safety and developer experience |
 
@@ -702,17 +743,6 @@ model Reading {
 4. API authentication (JWT tokens)
 5. Environment-specific configuration
 
-### Known Limitations & Future Improvements
-
-| Limitation | Current | Future |
-|-----------|---------|--------|
-| Data retention | Unlimited | Add TTL/archival policy |
-| API authentication | None | JWT + API keys |
-| Concurrent sensors | Single ESP32 | Multiple device IDs |
-| Data visualization | Basic display | Charts, graphs, trends |
-| Alerts | None | Temperature thresholds |
-| Mobile offline mode | Not implemented | Local SQLite cache |
-| Compression | No | GZIP for large payloads |
 
 ---
 
@@ -812,87 +842,7 @@ model Reading {
 
 ---
 
-## 💡 Key Implementation Decisions Explained
 
-### 1. Why NestJS for Backend?
-
-**Decision**: Chose NestJS over Express or other frameworks
-
-**Rationale:**
-- Built-in dependency injection eliminates boilerplate code
-- TypeScript support by default ensures type safety
-- Modular architecture scales better than monolithic Express apps
-- Excellent database integration with Prisma
-- Strong community and extensive documentation
-
-**Trade-offs:**
-- Steeper learning curve than Express
-- Slightly more overhead than minimal frameworks
-- Opinionated structure (some may prefer flexibility)
-
-### 2. Why Prisma ORM?
-
-**Decision**: Chose Prisma over raw SQL or other ORMs
-
-**Rationale:**
-- Type-safe database access from generated types
-- Automatic migrations without writing SQL
-- Excellent developer experience with IDE autocomplete
-- Built-in PostgreSQL support with adapters
-- Schema as single source of truth
-
-**Trade-offs:**
-- Cannot write complex raw SQL queries easily
-- Slight performance overhead compared to raw queries
-- Dependency on Prisma CLI for migrations
-
-### 3. Why Flutter for Mobile?
-
-**Decision**: Chose Flutter over React Native or native development
-
-**Rationale:**
-- Single codebase for Android and iOS reduces maintenance
-- Hot reload enables fast development iteration
-- Excellent performance with native ARM compilation
-- Material Design components out-of-the-box
-- Growing ecosystem and community support
-
-**Trade-offs:**
-- Smaller ecosystem than React Native
-- Dart language less familiar than JavaScript
-- Cannot directly use Java/Swift libraries without platform channels
-
-### 4. Why ESP32 Architecture?
-
-**Decision**: Chose Arduino IDE + simple loop-based architecture
-
-**Rationale:**
-- Arduino ecosystem has extensive DHT22 libraries
-- Simple setup/loop pattern familiar to embedded developers
-- Direct hardware control without OS overhead
-- Rapid prototyping and debugging capabilities
-
-**Trade-offs:**
-- Limited to C/C++ ecosystem
-- No true multitasking (cooperative multitasking only)
-- Memory constraints on device
-
-### 5. HTTP/REST for Communication?
-
-**Decision**: Chose HTTP/REST over MQTT or other protocols
-
-**Rationale:**
-- Simplicity: Standard HTTP widely supported
-- Easy to debug: Can test with curl or Postman
-- No broker required: Direct point-to-point communication
-- Suitable for low-frequency sensor data
-
-**Trade-offs:**
-- Higher bandwidth than binary protocols (MQTT, CoAP)
-- No built-in publish/subscribe pattern
-- Less efficient for high-frequency data streams
-
----
 
 ## 🔄 Development Process & Challenges
 
@@ -998,61 +948,7 @@ Cardo0 Task/
 └── README.md                   # This file - Project overview
 ```
 
----
 
-## 🔐 Security & Production Readiness
-
-### Security Measures Implemented
-
-1. **Environment Variables**: Sensitive configuration separated from code
-2. **Type Safety**: Prevents injection attacks through type checking
-3. **Data Validation**: DTOs validate all incoming requests
-4. **Error Messages**: Generic error responses prevent information leakage
-
-### Security Improvements for Production
-
-1. **Authentication**: Implement JWT tokens for API access
-2. **HTTPS**: Enable SSL/TLS for encrypted communication
-3. **Rate Limiting**: Prevent API abuse with request throttling
-4. **CORS**: Restrict API access to known domains
-5. **Input Sanitization**: Additional validation for string inputs
-6. **Secrets Management**: Use vault for storing credentials
-
----
-
-## 📝 Documentation & Code Quality
-
-### Code Quality Standards
-
-- **TypeScript**: Strict mode enabled for maximum type safety
-- **Linting**: ESLint configured for code consistency
-- **Formatting**: Prettier ensures consistent code style
-- **Testing**: Jest and Flutter test frameworks for validation
-
-### Documentation Provided
-
-1. This README: Overview and architecture explanation
-2. Inline code comments: Implementation details
-3. Function signatures: Clear contracts with types
-4. Prisma schema: Single source of truth for data model
-
----
-
-## 📚 Resources & References
-
-### Official Documentation
-- [NestJS Docs](https://docs.nestjs.com) - Backend framework documentation
-- [Prisma Docs](https://www.prisma.io/docs) - ORM and database tooling
-- [Flutter Docs](https://flutter.dev/docs) - Mobile framework
-- [Dart Docs](https://dart.dev/guides) - Programming language
-- [ESP32 Arduino Docs](https://docs.espressif.com/projects/arduino-esp32/en/latest/) - Embedded systems
-
-### Key Libraries
-- [DHT Sensor Library](https://github.com/adafruit/DHT-sensor-library) - Sensor integration
-- [GetIt](https://pub.dev/packages/get_it) - Service locator for dependency injection
-- [HTTP Package](https://pub.dev/packages/http) - HTTP client for Flutter
-
----
 
 ## 🎓 Project Conclusion
 
@@ -1090,31 +986,12 @@ Cardo0 Task/
 |----------|--------|
 | Languages | TypeScript, Dart, C/C++ |
 | Frameworks | NestJS, Flutter, Arduino |
-| Databases | PostgreSQL, Prisma ORM |
+| Databases | PostgreSQL, Prisma ORM ,Supabase|
 | Architecture | Clean Architecture, Dependency Injection, Modular Design |
 | Tools | Git, Docker, Arduino IDE, VS Code, DevTools |
 | Practices | Type Safety, Testing, Documentation, API Design |
 
-### Future Enhancement Roadmap
 
-**Short-term (Next Phase)**
-- Unit and integration tests for all components
-- API documentation with Swagger/OpenAPI
-- Mobile app state persistence (local SQLite)
-- Multiple sensor support
-
-**Medium-term (Next Release)**
-- Data visualization with charts and graphs
-- User authentication and multi-device support
-- Historical data analysis and trends
-- Alert system for threshold violations
-
-**Long-term (Production)**
-- Distributed sensor networks
-- Time-series database (TimescaleDB)
-- Real-time data streaming (WebSockets/GraphQL)
-- Cloud deployment with auto-scaling
-- Mobile app on Google Play and Apple App Store
 
 ### Lessons & Takeaways
 
