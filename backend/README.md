@@ -1,48 +1,174 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend - NestJS REST API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The backend is a **NestJS-based REST API server** that receives sensor data from the ESP32, stores it in PostgreSQL via Prisma ORM, and serves the latest readings to the mobile application.
 
-## Description
+## What This Component Does
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Accepts sensor readings** via HTTP POST from ESP32 device
+- **Stores data** in PostgreSQL database with automatic timestamps
+- **Provides API endpoints** for the mobile app to fetch the latest reading
+- **Manages database schema** using Prisma migrations
+- **Handles errors** with proper HTTP status codes and error responses
 
-## Project setup
+## Core Endpoints
 
-```bash
-$ npm install
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/readings` | Store a new temperature/humidity reading |
+| GET | `/readings/latest` | Fetch the most recent sensor reading |
+
+## Architecture
+
+```
+src/
+├── app.module.ts              # Root module
+├── main.ts                    # Application entry point
+├── prisma/
+│   ├── prisma.module.ts       # Database module
+│   └── prisma.service.ts      # Database connection service
+└── readings/
+    ├── readings.controller.ts # HTTP endpoints
+    ├── readings.service.ts    # Business logic
+    ├── readings.module.ts     # Feature module
+    ├── dto/                   # Request validation
+    └── entities/              # Response models
 ```
 
-## Compile and run the project
+## Key Technologies
+
+- **Framework**: NestJS 11.0.1
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM 5.22.0
+- **Runtime**: Node.js 18+
+- **API Protocol**: HTTP/REST with JSON
+
+## Database Schema
+
+```prisma
+model Reading {
+  id          Int      @id @default(autoincrement())
+  temperature Float
+  humidity    Float
+  createdAt   DateTime @default(now())
+}
+```
+
+### Design Rationale
+- **Auto-incrementing ID**: Simple and efficient for ordering
+- **Float precision**: Accommodates sensor decimal values (e.g., 25.5°C)
+- **Immutable records**: No updates; data is write-once for audit trail
+- **Timestamps**: Enables time-series analysis and sorting
+
+## Request & Response Examples
+
+### Create Reading (POST /readings)
+
+**Request:**
+```json
+{
+  "temperature": 25.5,
+  "humidity": 60.0
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": 42,
+  "temperature": 25.5,
+  "humidity": 60.0,
+  "createdAt": "2026-04-28T10:30:46.123Z"
+}
+```
+
+### Get Latest Reading (GET /readings/latest)
+
+**Response (200 OK):**
+```json
+{
+  "id": 42,
+  "temperature": 25.5,
+  "humidity": 60.0,
+  "createdAt": "2026-04-28T10:30:46.123Z"
+}
+```
+
+## Module Organization
+
+### Prisma Module
+- Handles database connection lifecycle
+- Exposed as injectable `PrismaService` for type-safe queries
+- Automatically connects on module initialization
+
+### Readings Module
+- **Controller**: Routes HTTP requests to service methods
+- **Service**: Implements business logic (`create()`, `getLatest()`)
+- **DTO**: Defines request payload structure
+- **Entity**: Defines response model
+
+## Error Handling
+
+| Scenario | Response |
+|----------|----------|
+| Invalid request | 400 Bad Request |
+| Server error | 500 Internal Server Error |
+| Invalid data type | 400 Bad Request |
+
+## Available npm Scripts
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run build          # Compile TypeScript to JavaScript
+npm run start          # Start server
+npm run start:dev      # Start with auto-reload (watch mode)
+npm run start:prod     # Production build and start
+npm run lint           # Lint and fix code
+npm run format         # Format code with Prettier
+npm run test           # Run unit tests
+npm run test:e2e       # Run end-to-end tests
 ```
+
+## Environment Variables
+
+Create a `.env` file in the backend root:
+
+```
+DATABASE_URL="postgresql://user:password@localhost:5432/cardoo_db"
+PORT=3000
+NODE_ENV=development
+```
+
+## Dependency Injection Pattern
+
+The backend uses NestJS built-in dependency injection:
+
+```typescript
+// Prisma service is automatically injected
+export class ReadingsService {
+  constructor(private prisma: PrismaService) {}
+  
+  async create(data: { temperature: number; humidity: number }) {
+    return this.prisma.reading.create({ data });
+  }
+}
+```
+
+Benefits:
+- Loose coupling between layers
+- Easy to test with mocked dependencies
+- Centralized dependency management
+
+## Integration Points
+
+- **Input**: HTTP POST requests from ESP32 (`http://backend:3000/readings`)
+- **Output**: JSON responses to mobile app (`GET /readings/latest`)
+- **Storage**: PostgreSQL database (Prisma client)
+
+---
+
+**Part of**: Cardoo IoT System  
+**Created**: April 2026
 
 ## Run tests
 
