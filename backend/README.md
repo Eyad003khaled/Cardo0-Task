@@ -40,7 +40,7 @@ src/
 
 - **Framework**: NestJS 11.0.1
 - **Language**: TypeScript
-- **Database**: PostgreSQL with Prisma ORM 5.22.0
+- **Database**: PostgreSQL (Supabase Cloud) with Prisma ORM 5.22.0
 - **Runtime**: Node.js 18+
 - **API Protocol**: HTTP/REST with JSON
 
@@ -54,6 +54,17 @@ model Reading {
   createdAt   DateTime @default(now())
 }
 ```
+
+## Database Layer
+
+This project uses **Supabase (cloud PostgreSQL)** as the managed database provider.
+
+- Provides hosted PostgreSQL instance
+- Handles scaling and backups automatically
+- Fully compatible with Prisma ORM
+- Used as the central storage for all sensor readings
+
+
 
 ### Design Rationale
 - **Auto-incrementing ID**: Simple and efficient for ordering
